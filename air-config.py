@@ -427,6 +427,68 @@ def friends_list_shorcut(skin: Path):
     input('Friends list shortcut {}.  Press any button to continue...'.format(status))
 
 
+def game_filters(skin: Path):
+    options = [
+        'Enable filters',
+        'Disable filters'
+    ]
+
+    # display options
+    cls()
+    print_header()
+    for x in range(len(options)):
+        print("{:4} --> {}".format(x, options[x]))
+
+    # get user choice
+    while True:
+        choice = get_int(input("Choose option: "))
+        if choice in range(len(options)):
+            break
+        else:
+            print('Invalid choice')
+
+    with (skin / 'Resource' / 'layout' / 'uinavigatorpanel.layout').open() as file:
+        layout = file.readlines()
+
+    idx = [layout.index(s) for s in layout if 'control=label_store,label_library' in s][0]
+
+    if choice == 0:
+        if layout[idx] != "      control=label_store,label_library\n":
+            # update code
+            layout[idx] = "      control=label_store,label_library\n"
+            idx += 4
+
+            # insert new code
+            layout[idx] = "    place {\n"
+            layout.insert(idx + 1, "      control=library_filters\n")
+            layout.insert(idx + 2, "      region=nav start=label_library height=30 width=15 x=0 y=7\n")
+            layout.insert(idx + 3, "    }\n")
+            layout.insert(idx + 4, '\n')
+            layout.insert(idx + 5, "    place {\n")
+            layout.insert(idx + 6, "      control=label_community,label_me\n")
+            layout.insert(idx + 7, "      region=nav start=library_filters height=44 spacing=16 x=10 y=0 margin-top=-7\n")
+            layout.insert(idx + 8, "    }\n")
+
+        status = 'enabled'
+    else:
+        if layout[idx] != "      control=label_store,label_library,label_community,label_me\n":
+            # update code
+            layout[idx] = "      control=label_store,label_library,label_community,label_me\n"
+            idx += 4
+            layout[idx] = "    place { control=library_filters height=0 width=0 margin-left=-9999 }\n"
+
+            # remove display code
+            for n in range(8):
+                layout.pop(idx + 1)
+
+        status = 'disabled'
+
+    with(skin / 'Resource' / 'layout' / 'uinavigatorpanel.layout').open('w') as file:
+        file.writelines(layout)
+
+    input('Game filters dropdown {}.  Press any button to continue...'.format(status))
+
+
 def configure_skin(skin):
     options = [
         ('Change theme', change_theme),
@@ -437,9 +499,9 @@ def configure_skin(skin):
         ('Reorganize sections in details mode', detail_reorg),
         ('Change fade of uninstalled games in grid mode', grid_fade),
         ('Friends list shortcut', friends_list_shorcut),
-        'Game filters dropdown',
+        ('Game filters dropdown', game_filters),
         'Wallet balance',
-        'Unread inbox icon invisiblity',
+        'Unread inbox icon invisibility',
         'Friends list square avatars',
         'Friends list hover effect',
         'Three line friends list status',
