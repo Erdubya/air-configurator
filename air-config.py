@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 
@@ -22,8 +23,19 @@ def get_int(num: str):
     return -1
 
 
+def print_header():
+    print("air-configurator")
+    print(sys.platform)
+    print('Skin path: ' + str(skin_dir))
+
+
+def cls():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+
 def choose_skin(skins: list) -> int:
-    print('\n')
+    cls()
+    print_header()
     for x in range(len(skins)):
         print("{:4} --> {}".format(x, skins[x].name))
 
@@ -49,7 +61,8 @@ def change_color(skin: Path):
     colors += [x.stem for x in (skin / 'Resource' / 'colors' / 'user').iterdir() if x.is_file()]
 
     # display list of colors
-    print('\n')
+    cls()
+    print_header()
     for x in range(len(colors)):
         print("{:4} --> {}".format(x, colors[x]))
 
@@ -92,13 +105,14 @@ def chat_font_size(skin: Path):
     ]
 
     # print options
-    print('\n')
+    cls()
+    print_header()
     for x in range(len(options)):
         print("{:4} --> {}".format(x, options[x]))
 
     # get user choice
     while True:
-        choice = get_int(input("Choose color: "))
+        choice = get_int(input("Choose option: "))
         if choice in range(len(options)):
             break
         else:
@@ -151,12 +165,49 @@ def chat_font_size(skin: Path):
 
 
 def notify_pos(skin: Path):
-    pass
+    options = [
+        ('Bottom right', 'BottomRight'),
+        ('Bottom left', 'BottomLeft'),
+        ('Top right', 'TopRight'),
+        ('Top left', 'TopLeft'),
+    ]
+
+    # print options
+    cls()
+    print_header()
+    for x in range(len(options)):
+        print("{:4} --> {}".format(x, options[x][0]))
+
+    # get user choice
+    while True:
+        choice = get_int(input("Choose position: "))
+        if choice in range(len(options)):
+            break
+        else:
+            print('Invalid choice')
+
+    # read file
+    with (skin / 'Resource' / 'styles' / 'steam.styles').open() as file:
+        styles = file.readlines()
+
+    # get correct line
+    idxs = [styles.index(s) for s in styles if 'Notifications.PanelPosition' in s]
+
+    for idx in idxs:
+        qopen = styles[idx].find('"') + 1
+        styles[idx] = styles[idx][:qopen] + options[choice][1] + styles[idx][styles[idx].find('"', qopen):]
+
+    # write file
+    with (skin / 'Resource' / 'styles' / 'steam.styles').open('w') as file:
+        file.writelines(styles)
+
+    input('Notification position changed to {}.  Press any button to continue...'.format(options[choice][0]))
 
 
 def configure_skin(skin):
     def choose_configuration_option(options: list):
-        print('\n')
+        cls()
+        print_header()
         for x in range(len(options)):
             print("{:4} --> {}".format(x, options[x][0]))
 
@@ -195,18 +246,16 @@ def configure_skin(skin):
         options[choice][1](skin)
 
 
-print("air-configurator")
-print(sys.platform)
+skin_dir = get_default_dir()
 
-skins_dir = get_default_dir()
-print('Skin path: ' + str(skins_dir))
+print_header()
 
-skins = [x for x in skins_dir.iterdir() if x.is_dir()]
+skins = [x for x in skin_dir.iterdir() if x.is_dir()]
 
-skin = skins[choose_skin(skins)]
+skin_dir = skins[choose_skin(skins)]
 
-if not is_air_skin(skin):
+if not is_air_skin(skin_dir):
     print('Invalid skin - not Air')
     exit(1)
 
-configure_skin(skin)
+configure_skin(skin_dir)
