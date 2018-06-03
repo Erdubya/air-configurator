@@ -106,7 +106,7 @@ def change_theme(skin: Path):
     with (skin / 'config.ini').open('w') as file:
         file.writelines(config)
 
-    input('Theme changed to {}.  Press any key to continue...'.format(new_theme))
+    input('Theme changed to {}.  Press enter to continue...'.format(new_theme))
 
 
 def change_color(skin: Path):
@@ -148,7 +148,7 @@ def change_color(skin: Path):
     with (skin / 'config.ini').open('w') as file:
         file.writelines(config)
 
-    input('Color changed to {}.  Press any key to continue...'.format(new_color))
+    input('Color changed to {}.  Press enter to continue...'.format(new_color))
 
 
 def chat_font_size(skin: Path):
@@ -198,7 +198,7 @@ def chat_font_size(skin: Path):
         with (skin / 'Resource' / 'styles' / '_fonts.styles').open('w') as file:
             file.writelines(fonts)
 
-        input('Chat font size changed to {}.  Press any button to continue...'.format(new_size))
+        input('Chat font size changed to {}.  Press enter to continue...'.format(new_size))
     elif choice == 1:
         # read file
         with (skin / 'Resource' / 'styles' / '_fonts.styles').open() as file:
@@ -215,7 +215,7 @@ def chat_font_size(skin: Path):
         with (skin / 'Resource' / 'styles' / '_fonts.styles').open('w') as file:
             file.writelines(fonts)
 
-        input('Chat font size reset.  Press any button to continue...')
+        input('Chat font size reset.  Press enter to continue...')
 
 
 def notify_pos(skin: Path):
@@ -255,7 +255,7 @@ def notify_pos(skin: Path):
     with (skin / 'Resource' / 'styles' / 'steam.styles').open('w') as file:
         file.writelines(styles)
 
-    input('Notification position changed to {}.  Press any button to continue...'.format(options[choice][0]))
+    input('Notification position changed to {}.  Press enter to continue...'.format(options[choice][0]))
 
 
 def notify_stack(skin: Path):
@@ -300,7 +300,7 @@ def notify_stack(skin: Path):
         with (skin / 'Resource' / 'styles' / 'steam.styles').open('w') as file:
             file.writelines(styles)
 
-        input('Notification stack size changed to {}.  Press any button to continue...'.format(new_size))
+        input('Notification stack size changed to {}.  Press enter to continue...'.format(new_size))
 
 
 def detail_reorg(skin: Path):
@@ -355,7 +355,7 @@ def detail_reorg(skin: Path):
     with (skin / 'Resource' / 'layout' / 'steamrootdialog_gamespage_details.layout').open('w') as file:
         file.writelines(layout)
 
-    input('Display order saved.  Press any button to continue...')
+    input('Display order saved.  Press enter to continue...')
 
 
 def grid_fade(skin: Path):
@@ -382,7 +382,7 @@ def grid_fade(skin: Path):
     with (skin / 'Resource' / 'styles' / 'steam.styles').open('w') as file:
         file.writelines(styles)
 
-    input('Fade value changed to {}.  Press any button to continue...'.format(new_alpha))
+    input('Fade value changed to {}.  Press enter to continue...'.format(new_alpha))
 
 
 def friends_list_shorcut(skin: Path):
@@ -424,7 +424,7 @@ def friends_list_shorcut(skin: Path):
     with (skin / 'Resource' / 'layout' / 'steamrootdialog.layout').open('w') as file:
         file.writelines(layout)
 
-    input('Friends list shortcut {}.  Press any button to continue...'.format(status))
+    input('Friends list shortcut {}.  Press enter to continue...'.format(status))
 
 
 def game_filters(skin: Path):
@@ -466,7 +466,8 @@ def game_filters(skin: Path):
             layout.insert(idx + 4, '\n')
             layout.insert(idx + 5, "    place {\n")
             layout.insert(idx + 6, "      control=label_community,label_me\n")
-            layout.insert(idx + 7, "      region=nav start=library_filters height=44 spacing=16 x=10 y=0 margin-top=-7\n")
+            layout.insert(idx + 7,
+                          "      region=nav start=library_filters height=44 spacing=16 x=10 y=0 margin-top=-7\n")
             layout.insert(idx + 8, "    }\n")
 
         status = 'enabled'
@@ -486,7 +487,51 @@ def game_filters(skin: Path):
     with(skin / 'Resource' / 'layout' / 'uinavigatorpanel.layout').open('w') as file:
         file.writelines(layout)
 
-    input('Game filters dropdown {}.  Press any button to continue...'.format(status))
+    input('Game filters dropdown {}.  Press enter to continue...'.format(status))
+
+
+def wallet_balance(skin: Path):
+    options = [
+        'Show wallet balance',
+        'Hide wallet balance'
+    ]
+
+    # display options
+    cls()
+    print_header()
+    for x in range(len(options)):
+        print("{:4} --> {}".format(x, options[x]))
+
+    # get user choice
+    while True:
+        choice = get_int(input("Choose option: "))
+        if choice in range(len(options)):
+            break
+        else:
+            print('Invalid choice')
+
+    if choice == 0:
+        height = '30'
+        status = 'shown'
+    else:
+        height = '0'
+        status = 'hidden'
+
+    with (skin / 'Resource' / 'layout' / 'steamrootdialog.layout').open() as file:
+        layout = file.readlines()
+
+    idx = [layout.index(s) for s in layout if 'control=account_balance' in s][0]
+
+    param_start = layout[idx].find('height=') + len('height=')
+    param_end = layout[idx].find(' margin-right')
+
+    layout[idx] = layout[idx][:param_start] + height + layout[idx][param_end:]
+
+    with (skin / 'Resource' / 'layout' / 'steamrootdialog.layout').open('w') as file:
+        file.writelines(layout)
+
+    input('Wallet balance {}.  Press enter to continue...'.format(status))
+
 
 
 def configure_skin(skin):
@@ -500,11 +545,11 @@ def configure_skin(skin):
         ('Change fade of uninstalled games in grid mode', grid_fade),
         ('Friends list shortcut', friends_list_shorcut),
         ('Game filters dropdown', game_filters),
-        'Wallet balance',
+        ('Wallet balance', wallet_balance),
         'Unread inbox icon invisibility',
         'Friends list square avatars',
         'Friends list hover effect',
-        'Three line friends list status',
+        'Friends list status',
         'Always visible downloads icon',
         ('Exit', 0)
     ]
