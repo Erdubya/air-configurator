@@ -385,6 +385,48 @@ def grid_fade(skin: Path):
     input('Fade value changed to {}.  Press any button to continue...'.format(new_alpha))
 
 
+def friends_list_shorcut(skin: Path):
+    options = [
+        'Enable shortcut',
+        'Disable shortcut'
+    ]
+
+    # display options
+    cls()
+    print_header()
+    for x in range(len(options)):
+        print("{:4} --> {}".format(x, options[x]))
+
+    # get user choice
+    while True:
+        choice = get_int(input("Choose option: "))
+        if choice in range(len(options)):
+            break
+        else:
+            print('Invalid choice')
+
+    with (skin / 'Resource' / 'layout' / 'steamrootdialog.layout').open() as file:
+        layout = file.readlines()
+
+    idx1 = [layout.index(s) for s in layout if 'control=online_friends' in s][0] + 1
+    idx2 = [layout.index(s) for s in layout if 'control=view_friends' in s][0] + 1
+
+    if choice == 0:
+        height = '30'
+        status = 'enabled'
+    else:
+        height = '0'
+        status = 'disabled'
+
+    layout[idx1] = layout[idx1][:layout[idx1].find('=') + 1] + height + '\n'
+    layout[idx2] = layout[idx2][:layout[idx2].find('=') + 1] + height + '\n'
+
+    with (skin / 'Resource' / 'layout' / 'steamrootdialog.layout').open('w') as file:
+        file.writelines(layout)
+
+    input('Friends list shortcut {}.  Press any button to continue...'.format(status))
+
+
 def configure_skin(skin):
     options = [
         ('Change theme', change_theme),
@@ -394,7 +436,7 @@ def configure_skin(skin):
         ('Change notification stack count', notify_stack),
         ('Reorganize sections in details mode', detail_reorg),
         ('Change fade of uninstalled games in grid mode', grid_fade),
-        'Friends list shortcut',
+        ('Friends list shortcut', friends_list_shorcut),
         'Game filters dropdown',
         'Wallet balance',
         'Unread inbox icon invisiblity',
