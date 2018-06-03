@@ -84,7 +84,7 @@ def change_theme(skin: Path):
     new_theme = themes[choice]
 
     # copy theme directory
-    copy_dir(str(skin / '+Extras' / 'Themes' /  new_theme), str(skin))
+    copy_dir(str(skin / '+Extras' / 'Themes' / new_theme), str(skin))
 
     # set theme in config
     # read in current config
@@ -258,14 +258,114 @@ def notify_pos(skin: Path):
     input('Notification position changed to {}.  Press any button to continue...'.format(options[choice][0]))
 
 
+def notify_stack(skin: Path):
+    options = [
+        'Change stack size',
+        'Cancel'
+    ]
+
+    # print options
+    cls()
+    print_header()
+    for x in range(len(options)):
+        print("{:4} --> {}".format(x, options[x][0]))
+
+    # get user choice
+    while True:
+        choice = get_int(input("Choose option: "))
+        if choice in range(len(options)):
+            break
+        else:
+            print('Invalid choice')
+
+    if choice == 0:
+        while True:
+            new_size = get_int(input("Enter new stack size: "))
+            if new_size > 0:
+                break
+            else:
+                print('Invalid choice')
+
+        # read file
+        with (skin / 'Resource' / 'styles' / 'steam.styles').open() as file:
+            styles = file.readlines()
+
+        # get correct line
+        idx = [styles.index(s) for s in styles if 'Notifications.StackSize' in s][0]
+
+        qopen = styles[idx].find('"') + 1
+        styles[idx] = styles[idx][:qopen] + str(new_size) + styles[idx][styles[idx].find('"', qopen):]
+
+        # write file
+        with (skin / 'Resource' / 'styles' / 'steam.styles').open('w') as file:
+            file.writelines(styles)
+
+        input('Notification stack size changed to {}.  Press any button to continue...'.format(new_size))
+
+
+def detail_reorg(skin: Path):
+    with (skin / 'Resource' / 'layout' / 'steamrootdialog_gamespage_details.layout').open() as file:
+        layout = file.readlines()
+
+    idx = [layout.index(s) for s in layout if 'welcomedetails' in s][0]
+
+    param_start = layout[idx].find('=') + 1
+    items = layout[idx][param_start:-1].split(',')
+
+    items.append('Save Order')
+
+    while True:
+        # print options
+        cls()
+        print_header()
+        for x in range(len(items)):
+            print("{:4} --> {}".format(x, items[x]))
+
+        # get user choice
+        while True:
+            swap_dst = get_int(input("Choose position to change: "))
+            if swap_dst in range(len(items)):
+                break
+            else:
+                print('Invalid choice')
+
+        # cancel out of loop
+        if swap_dst is len(items) - 1:
+            break
+
+        # print options
+        cls()
+        print_header()
+        for x in range(len(items) - 1):
+            print("{:4} --> {}".format(x, items[x]))
+
+        # get user choice
+        while True:
+            swap_src = get_int(input("Replace with: "))
+            if swap_src in range(len(items) - 1):
+                break
+            else:
+                print('Invalid choice')
+
+        # swap items
+        items[swap_src], items[swap_dst] = items[swap_dst], items[swap_src]
+
+    layout[idx] = layout[idx][:param_start] + ','.join(items[:-1]) + '\n'
+
+    with (skin / 'Resource' / 'layout' / 'steamrootdialog_gamespage_details.layout').open('w') as file:
+        file.writelines(layout)
+
+    input('Display order saved.  Press any button to continue...')
+
+
 def configure_skin(skin):
     options = [
         ('Change theme', change_theme),
         ('Change color', change_color),
         ('Change chat font size', chat_font_size),
         ('Change notification position', notify_pos),
-        'Change notification stack count',
-        'Reorganize sections in details mode',
+        ('Change notification stack count', notify_stack),
+        ('Reorganize sections in details mode', detail_reorg),
         'Change fade of uninstalled games in grid mode',
         'Friends list shortcut',
         'Game filters dropdown',
