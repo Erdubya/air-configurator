@@ -85,7 +85,69 @@ def change_color(skin: Path):
 
 
 def chat_font_size(skin: Path):
-    pass
+    options = [
+        'Enter new font size',
+        'Reset to default',
+        'Cancel'
+    ]
+
+    # print options
+    print('\n')
+    for x in range(len(options)):
+        print("{:4} --> {}".format(x, options[x]))
+
+    # get user choice
+    while True:
+        choice = get_int(input("Choose color: "))
+        if choice in range(len(options)):
+            break
+        else:
+            print('Invalid choice')
+
+    # change font size
+    if choice == 0:
+        while True:
+            new_size = get_int(input('Enter new font size: '))
+            if new_size > 0:
+                break
+
+        # read file
+        with (skin / 'Resource' / 'styles' / '_fonts.styles').open() as file:
+            fonts = file.readlines()
+
+        # get correct line
+        idx = [fonts.index(s) for s in fonts if 'ChatListPanel RichText' in s][0]
+
+        # uncomment line
+        if fonts[idx].startswith('//'):
+            fonts[idx] = fonts[idx][2:]
+
+        # add font size
+        fonts[idx] = fonts[idx][:fonts[idx].find('{') + 1] + ' font-size={} '.format(new_size) + fonts[idx][
+                                                                                                 fonts[idx].find('}'):]
+
+        # write file
+        with (skin / 'Resource' / 'styles' / '_fonts.styles').open('w') as file:
+            file.writelines(fonts)
+
+        input('Chat font size changed to {}.  Press any button to continue...'.format(new_size))
+    elif choice == 1:
+        # read file
+        with (skin / 'Resource' / 'styles' / '_fonts.styles').open() as file:
+            fonts = file.readlines()
+
+        # get correct line
+        idx = [fonts.index(s) for s in fonts if 'ChatListPanel RichText' in s][0]
+
+        # comment line
+        if not fonts[idx].startswith('//'):
+            fonts[idx] = '//' + fonts[idx]
+
+        # write file
+        with (skin / 'Resource' / 'styles' / '_fonts.styles').open('w') as file:
+            file.writelines(fonts)
+
+        input('Chat font size reset.  Press any button to continue...')
 
 
 def notify_pos(skin: Path):
@@ -121,13 +183,13 @@ def configure_skin(skin):
         'Friends list hover effect',
         'Three line friends list status',
         'Always visible downloads icon',
-        'Exit'
+        ('Exit', 0)
     ]
 
     while True:
         choice = choose_configuration_option(options)
 
-        if options[choice] == 'Exit':
+        if options[choice][0] == 'Exit':
             break
 
         options[choice][1](skin)
