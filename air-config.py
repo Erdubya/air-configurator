@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -33,15 +34,28 @@ def cls():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
-def choose_skin(skins: list) -> int:
+def copy_dir(root_src_dir, root_dst_dir):
+    for src_dir, dirs, files in os.walk(root_src_dir):
+        dst_dir = src_dir.replace(root_src_dir, root_dst_dir, 1)
+        if not os.path.exists(dst_dir):
+            os.makedirs(dst_dir)
+        for file_ in files:
+            src_file = os.path.join(src_dir, file_)
+            dst_file = os.path.join(dst_dir, file_)
+            if os.path.exists(dst_file):
+                os.remove(dst_file)
+            shutil.copy(src_file, dst_dir)
+
+
+def choose_skin(skin_list: list) -> int:
     cls()
     print_header()
-    for x in range(len(skins)):
-        print("{:4} --> {}".format(x, skins[x].name))
+    for x in range(len(skin_list)):
+        print("{:4} --> {}".format(x, skin_list[x].name))
 
     while True:
         choice = get_int(input("Choose skin to configure: "))
-        if choice in range(len(skins)):
+        if choice in range(len(skin_list)):
             return choice
         else:
             print('Invalid choice')
@@ -52,7 +66,47 @@ def is_air_skin(skin: Path) -> bool:
 
 
 def change_theme(skin: Path):
-    pass
+    # get theme list
+    themes = [x.name for x in (skin / '+Extras' / 'Themes').iterdir() if x.is_dir()]
+
+    cls()
+    print_header()
+    for x in range(len(themes)):
+        print("{:4} --> {}".format(x, themes[x]))
+
+    # get user choice of theme
+    while True:
+        choice = get_int(input("Choose theme: "))
+        if choice in range(len(themes)):
+            break
+        else:
+            print('Invalid choice')
+    new_theme = themes[choice]
+
+    # copy theme directory
+    copy_dir(str(skin / '+Extras' / 'Themes' /  new_theme), str(skin))
+
+    # set theme in config
+    # read in current config
+    with (skin / 'config.ini').open() as file:
+        config = file.readlines()
+
+    # get color specific lines
+    idxs = [config.index(s) for s in config if 'resource/themes' in s]
+
+    # set new color
+    for i in idxs:
+        if not config[i].startswith('//', 4):
+            config[i] = config[i][:4] + '//' + config[i][4:]
+
+        if new_theme.lower() in config[i]:
+            config[i] = config[i].replace('//', '', 1)
+
+    # write out config
+    with (skin / 'config.ini').open('w') as file:
+        file.writelines(config)
+
+    input('Theme changed to {}.  Press any key to continue...'.format(new_theme))
 
 
 def change_color(skin: Path):
@@ -94,7 +148,7 @@ def change_color(skin: Path):
     with (skin / 'config.ini').open('w') as file:
         file.writelines(config)
 
-    input('Color changed to {}.  Press any button to continue...'.format(new_color))
+    input('Color changed to {}.  Press any key to continue...'.format(new_color))
 
 
 def chat_font_size(skin: Path):
@@ -205,19 +259,6 @@ def notify_pos(skin: Path):
 
 
 def configure_skin(skin):
-    def choose_configuration_option(options: list):
-        cls()
-        print_header()
-        for x in range(len(options)):
-            print("{:4} --> {}".format(x, options[x][0]))
-
-        while True:
-            choice = get_int(input("Choose option: "))
-            if choice in range(len(options)):
-                return choice
-            else:
-                print('Invalid choice')
-
     options = [
         ('Change theme', change_theme),
         ('Change color', change_color),
@@ -238,7 +279,17 @@ def configure_skin(skin):
     ]
 
     while True:
-        choice = choose_configuration_option(options)
+        cls()
+        print_header()
+        for x in range(len(options)):
+            print("{:4} --> {}".format(x, options[x][0]))
+
+        while True:
+            choice = get_int(input("Choose option: "))
+            if choice in range(len(options)):
+                break
+            else:
+                print('Invalid choice')
 
         if options[choice][0] == 'Exit':
             break
