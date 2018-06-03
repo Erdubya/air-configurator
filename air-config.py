@@ -16,13 +16,19 @@ def get_default_dir() -> Path:
     return skins_dir
 
 
+def get_int(num: str):
+    if num.isdigit():
+        return int(num)
+    return -1
+
+
 def choose_skin(skins: list) -> int:
     print('\n')
     for x in range(len(skins)):
         print("{:4} --> {}".format(x, skins[x].name))
 
     while True:
-        choice = int(input("Choose skin to configure: "))
+        choice = get_int(input("Choose skin to configure: "))
         if choice in range(len(skins)):
             return choice
         else:
@@ -38,28 +44,45 @@ def change_theme(skin: Path):
 
 
 def change_color(skin: Path):
+    # get list of available colors
     colors = [x.stem for x in (skin / 'Resource' / 'colors').iterdir() if x.is_file()]
     colors += [x.stem for x in (skin / 'Resource' / 'colors' / 'user').iterdir() if x.is_file()]
 
+    # display list of colors
     print('\n')
     for x in range(len(colors)):
         print("{:4} --> {}".format(x, colors[x]))
 
+    # get user choice of color
     while True:
-        choice = int(input("Choose color: "))
+        choice = get_int(input("Choose color: "))
         if choice in range(len(colors)):
             break
         else:
             print('Invalid choice')
-
-
-
     new_color = colors[choice]
+
+    # read in current config
     with (skin / 'config.ini').open() as file:
         config = file.readlines()
 
-    idx = [config.index(s) for s in config if new_color in s]
-    print(config[idx[0]])
+    # get color specific lines
+    idxs = [config.index(s) for s in config if 'resource/colors' in s]
+
+    # set new color
+    for i in idxs:
+        if '//' not in config[i]:
+            config[i] = config[i][:4] + '//' + config[i][4:]
+
+        if new_color in config[i]:
+            config[i] = config[i].replace('//', '')
+
+    # write out config
+    with (skin / 'config.ini').open('w') as file:
+        file.writelines(config)
+
+    input('Color changed to {}.  Press any button to continue...'.format(new_color))
+
 
 def chat_font_size(skin: Path):
     pass
@@ -76,7 +99,7 @@ def configure_skin(skin):
             print("{:4} --> {}".format(x, options[x][0]))
 
         while True:
-            choice = int(input("Choose option: "))
+            choice = get_int(input("Choose option: "))
             if choice in range(len(options)):
                 return choice
             else:
