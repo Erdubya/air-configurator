@@ -358,6 +358,33 @@ def detail_reorg(skin: Path):
     input('Display order saved.  Press any button to continue...')
 
 
+def grid_fade(skin: Path):
+    with (skin / 'Resource' / 'styles' / 'steam.styles').open() as file:
+        styles = file.readlines()
+
+    idx = [styles.index(s) for s in styles if 'GameItem_Uninstalled GamesGridImage' in s][0] + 1
+
+    cur_alpha = styles[idx].strip(' \t\nalpha')
+
+    cls()
+    print_header()
+    print('\nCurrent fade value: {}'.format(cur_alpha))
+
+    while True:
+        new_alpha = get_int(input("Enter new fade value: "))
+        if new_alpha in range(256):
+            break
+        else:
+            print("Invalid value")
+
+    styles[idx] = "      {} {:10}\n".format('alpha', new_alpha)
+
+    with (skin / 'Resource' / 'styles' / 'steam.styles').open('w') as file:
+        file.writelines(styles)
+
+    input('Fade value changed to {}.  Press any button to continue...'.format(new_alpha))
+
+
 def configure_skin(skin):
     options = [
         ('Change theme', change_theme),
@@ -366,7 +393,7 @@ def configure_skin(skin):
         ('Change notification position', notify_pos),
         ('Change notification stack count', notify_stack),
         ('Reorganize sections in details mode', detail_reorg),
-        'Change fade of uninstalled games in grid mode',
+        ('Change fade of uninstalled games in grid mode', grid_fade),
         'Friends list shortcut',
         'Game filters dropdown',
         'Wallet balance',
