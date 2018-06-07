@@ -533,6 +533,67 @@ def wallet_balance(skin: Path):
     input('Wallet balance {}.  Press enter to continue...'.format(status))
 
 
+def inbox_icon(skin: Path):
+    options = [
+        'Show inbox icon',
+        'Hide inbox icon'
+    ]
+
+    with (skin / 'Resource' / 'layout' / 'steamrootdialog.layout').open() as file:
+        layout = file.readlines()
+
+    idx = [layout.index(s) for s in layout if 'inbox_button {' in s][0] + 2
+
+    # display options
+    cls()
+    print_header()
+    for x in range(len(options)):
+        print("{:4} --> {}".format(x, options[x]))
+
+    # get user choice
+    while True:
+        choice = get_int(input("Choose option: "))
+        if choice in range(len(options)):
+            break
+        else:
+            print('Invalid choice')
+
+    if choice == 0:
+        if "render_bg" not in layout[idx]:
+            layout.insert(idx + 0, "      render_bg {\n")
+            layout.insert(idx + 1, "        0=\"image( x0 + 6, y0 + 6, x1, y1, graphics/onfocus/inbox )\"\n")
+            layout.insert(idx + 2, "      }\n")
+
+            while "inbox_button:selected {" not in layout[idx]:
+                idx += 1
+            idx += 2
+
+            layout.insert(idx + 0, "      render_bg {\n")
+            layout.insert(idx + 1, "        0=\"image( x0, y0, x1, y1, graphics/onfocus/active_circle )\"\n")
+            layout.insert(idx + 2, "        1=\"image( x0 + 6, y0 + 6, x1, y1, graphics/onfocus/inbox )\"\n")
+            layout.insert(idx + 3, "      }\n")
+
+        status = "enabled"
+    else:
+        if "render_bg" in layout[idx]:
+            while "}" not in layout[idx]:
+                layout.pop(idx)
+            layout.pop(idx)
+
+            while "render_bg" not in layout[idx]:
+                idx += 1
+
+            while "}" not in layout[idx]:
+                layout.pop(idx)
+            layout.pop(idx)
+
+        status = "disabled"
+
+    with (skin / 'Resource' / 'layout' / 'steamrootdialog.layout').open('w') as file:
+        file.writelines(layout)
+
+    input('Inbox icon {}.  Press enter to continue...'.format(status))
+
 
 def configure_skin(skin):
     options = [
@@ -546,7 +607,7 @@ def configure_skin(skin):
         ('Friends list shortcut', friends_list_shorcut),
         ('Game filters dropdown', game_filters),
         ('Wallet balance', wallet_balance),
-        'Unread inbox icon invisibility',
+        ('Show inbox icon when no messages', inbox_icon),
         'Friends list square avatars',
         'Friends list hover effect',
         'Friends list status',
