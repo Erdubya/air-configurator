@@ -595,6 +595,81 @@ def inbox_icon(skin: Path):
     input('Inbox icon {}.  Press enter to continue...'.format(status))
 
 
+def square_avatars(skin: Path):
+    options = [
+        'Enable square avatars',
+        'Disable square avatars'
+    ]
+
+    # display options
+    cls()
+    print_header()
+    for x in range(len(options)):
+        print("{:4} --> {}".format(x, options[x]))
+
+    # get user choice
+    while True:
+        choice = get_int(input("Choose option: "))
+        if choice in range(len(options)):
+            break
+        else:
+            print('Invalid choice')
+
+    avatars = skin / "+Extras" / "Square Avatars"
+    graphics = skin / "Graphics"
+
+    if choice == 0:
+        # get current theme
+        with (skin / 'config.ini').open() as file:
+            config = file.readlines()
+        idxs = [config.index(s) for s in config if 'resource/themes' in s]
+        theme = ""
+        for i in idxs:
+            if not config[i].startswith('//', 4):
+                start = config[i].find("_") + 1
+                end = config[i].find(".", start)
+                theme = config[i][start:end]
+
+        theme = theme[:1].upper() + theme[1:]
+
+        shutil.move(str(graphics / "avatarBorderInGame.tga"), str(graphics / "avatarBorderInGame.tga.orig"))
+        shutil.move(str(graphics / "avatarBorderOffline.tga"), str(graphics / "avatarBorderOffline.tga.orig"))
+        shutil.move(str(graphics / "avatarBorderOnline.tga"), str(graphics / "avatarBorderOnline.tga.orig"))
+        shutil.move(str(graphics / "avatarBorderOverlay.tga"), str(graphics / "avatarBorderOverlay.tga.orig"))
+        if (graphics / "avatarBorderNotificationDesktop.tga").exists():
+            shutil.move(str(graphics / "avatarBorderNotificationDesktop.tga"),
+                        str(graphics / "avatarBorderNotificationDesktop.tga.orig"))
+            shutil.move(str(graphics / "avatarBorderNotificationOverlay.tga"),
+                        str(graphics / "avatarBorderNotificationOverlay.tga.orig"))
+        if (graphics / "avatarBorderNotification.tga").exists():
+            shutil.move(str(graphics / "avatarBorderNotification.tga"),
+                        str(graphics / "avatarBorderNotification.tga.orig"))
+
+        copy_dir(str(avatars / theme), str(graphics))
+        status = "enabled"
+    else:
+        if (graphics / "avatarBorderNotificationDesktop.tga.orig").exists():
+            shutil.move(str(graphics / "avatarBorderNotificationDesktop.tga.orig"),
+                        str(graphics / "avatarBorderNotificationDesktop.tga"))
+            shutil.move(str(graphics / "avatarBorderNotificationOverlay.tga.orig"),
+                        str(graphics / "avatarBorderNotificationOverlay.tga"))
+            shutil.move(str(graphics / "avatarBorderInGame.tga.orig"),str(graphics / "avatarBorderInGame.tga"))
+            shutil.move(str(graphics / "avatarBorderOffline.tga.orig"), str(graphics / "avatarBorderOffline.tga"))
+            shutil.move(str(graphics / "avatarBorderOnline.tga.orig"), str(graphics / "avatarBorderOnline.tga"))
+            shutil.move(str(graphics / "avatarBorderOverlay.tga.orig"), str(graphics / "avatarBorderOverlay.tga"))
+            os.remove(str(graphics / "avatarBorderNotification.tga"))
+        status = "disabled"
+
+    input('Square avatars {}.  Press enter to continue...'.format(status))
+
+
+def friends_hover(skin: Path):
+    options = [
+        "Enable hover effect"
+        "Disable hover effect"
+    ]
+
+
 def configure_skin(skin):
     options = [
         ('Change theme', change_theme),
@@ -608,9 +683,9 @@ def configure_skin(skin):
         ('Game filters dropdown', game_filters),
         ('Wallet balance', wallet_balance),
         ('Show inbox icon when no messages', inbox_icon),
-        'Friends list square avatars',
-        'Friends list hover effect',
-        'Friends list status',
+        ('Friends list square avatars', square_avatars),
+        ('Friends list hover effect', friends_hover),
+        'Friends list status on three lines',
         'Always visible downloads icon',
         ('Exit', 0)
     ]
