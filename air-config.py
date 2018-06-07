@@ -665,9 +665,44 @@ def square_avatars(skin: Path):
 
 def friends_hover(skin: Path):
     options = [
-        "Enable hover effect"
+        "Enable hover effect",
         "Disable hover effect"
     ]
+
+    # display options
+    cls()
+    print_header()
+    for x in range(len(options)):
+        print("{:4} --> {}".format(x, options[x]))
+
+    # get user choice
+    while True:
+        choice = get_int(input("Choose option: "))
+        if choice in range(len(options)):
+            break
+        else:
+            print('Invalid choice')
+
+    with (skin / "Resource" / "layout" / "friendpanel.layout").open() as file:
+        layout = file.readlines()
+
+    idx = [layout.index(s) for s in layout if '{ image="graphics/friends/status_mobile_ingame" }' in s][0] + 1
+
+    if choice == 0:
+        if "CFriendPanel" not in layout[idx]:
+            layout.insert(idx, "            { render_bg { 0=\"fill( x0 - 99, y0, x1, y1, A2Ribbon )\" } }\n")
+            layout.insert(idx, "        CFriendPanel:selected\n")
+        status = "enabled"
+    else:
+        if "CFriendPanel" in layout[idx]:
+            layout.pop(idx)
+            layout.pop(idx)
+        status = "disabled"
+
+    with (skin / "Resource" / "layout" / "friendpanel.layout").open("w") as file:
+        file.writelines(layout)
+
+    input('Friends list hover effect {}.  Press enter to continue...'.format(status))
 
 
 def configure_skin(skin):
