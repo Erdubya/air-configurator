@@ -705,6 +705,74 @@ def friends_hover(skin: Path):
     input('Friends list hover effect {}.  Press enter to continue...'.format(status))
 
 
+def friends_status_lines(skin: Path):
+    options = [
+        "Status on three lines",
+        "Status on two lines"
+    ]
+
+    # display options
+    cls()
+    print_header()
+    for x in range(len(options)):
+        print("{:4} --> {}".format(x, options[x]))
+
+    # get user choice
+    while True:
+        choice = get_int(input("Choose option: "))
+        if choice in range(len(options)):
+            break
+        else:
+            print('Invalid choice')
+
+    with (skin / "Resource" / "layout" / "friendpanel.layout").open() as file:
+        layout = file.readlines()
+
+    idx = [layout.index(s) for s in layout if 'control=NameLabel,FriendsNameInstanceLabel,ClanStatusImage' in s][0]
+
+    if choice == 0:
+        if "y=9" in layout[idx]:
+            layout[idx] = layout[idx][:layout[idx].find("y=") + 2] + "3" + layout[idx][(layout[idx].find("y=") + 3):]
+            idx += 2
+
+            layout.pop(idx)
+            layout.insert(idx, "        place { control=GameLabel x=53 y=31 }\n")
+            layout.insert(idx, "        place { control=StatusLabel x=53 y=17 }\n")
+            idx += 2
+
+            layout[idx] = layout[idx][:layout[idx].find("y=") + 2] + "31" + layout[idx][(layout[idx].find("y=") + 4):]
+            idx += 1
+
+            layout[idx] = layout[idx][:layout[idx].find("y=") + 2] + "31" + layout[idx][(layout[idx].find("y=") + 4):]
+            idx += 2
+
+            layout[idx] = layout[idx][:layout[idx].find("start=")] + "start=StatusLabel }\n"
+        status = "three"
+    else:
+        if "y=3" in layout[idx]:
+            layout[idx] = layout[idx][:layout[idx].find("y=") + 2] + "9" + layout[idx][(layout[idx].find("y=") + 3):]
+            idx += 2
+
+            layout.pop(idx)
+            layout.pop(idx)
+            layout.insert(idx, "        place { control=StatusLabel,GameLabel x=53 y=25 spacing=8 }\n")
+            idx += 1
+
+            layout[idx] = layout[idx][:layout[idx].find("y=") + 2] + "25" + layout[idx][(layout[idx].find("y=") + 4):]
+            idx += 1
+
+            layout[idx] = layout[idx][:layout[idx].find("y=") + 2] + "25" + layout[idx][(layout[idx].find("y=") + 4):]
+            idx += 2
+
+            layout[idx] = layout[idx][:layout[idx].find("start=")] + "start=GameLabel x=8 }\n"
+        status = "two"
+
+    with (skin / "Resource" / "layout" / "friendpanel.layout").open("w") as file:
+        file.writelines(layout)
+
+    input('Friends list status shown on {} lines.  Press enter to continue...'.format(status))
+
+
 def configure_skin(skin):
     options = [
         ('Change theme', change_theme),
@@ -720,7 +788,7 @@ def configure_skin(skin):
         ('Show inbox icon when no messages', inbox_icon),
         ('Friends list square avatars', square_avatars),
         ('Friends list hover effect', friends_hover),
-        'Friends list status on three lines',
+        ('Friends list status on three lines', friends_status_lines),
         'Always visible downloads icon',
         ('Exit', 0)
     ]
