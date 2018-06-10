@@ -47,6 +47,24 @@ def copy_dir(root_src_dir, root_dst_dir):
             shutil.copy(src_file, dst_dir)
 
 
+def generic_get_choice(options: list) -> int:
+    # display options
+    cls()
+    print_header()
+    for x in range(len(options)):
+        print("{:4} --> {}".format(x, options[x]))
+
+    # get user choice
+    while True:
+        choice = get_int(input("Choose option: "))
+        if choice in range(len(options)):
+            break
+        else:
+            print('Invalid choice')
+
+    return choice
+
+
 def choose_skin(skin_list: list) -> int:
     cls()
     print_header()
@@ -152,25 +170,11 @@ def change_color(skin: Path):
 
 
 def chat_font_size(skin: Path):
-    options = [
+    choice = generic_get_choice([
         'Enter new font size',
         'Reset to default',
         'Cancel'
-    ]
-
-    # print options
-    cls()
-    print_header()
-    for x in range(len(options)):
-        print("{:4} --> {}".format(x, options[x]))
-
-    # get user choice
-    while True:
-        choice = get_int(input("Choose option: "))
-        if choice in range(len(options)):
-            break
-        else:
-            print('Invalid choice')
+    ])
 
     # change font size
     if choice == 0:
@@ -259,24 +263,10 @@ def notify_pos(skin: Path):
 
 
 def notify_stack(skin: Path):
-    options = [
+    choice = generic_get_choice([
         'Change stack size',
         'Cancel'
-    ]
-
-    # print options
-    cls()
-    print_header()
-    for x in range(len(options)):
-        print("{:4} --> {}".format(x, options[x][0]))
-
-    # get user choice
-    while True:
-        choice = get_int(input("Choose option: "))
-        if choice in range(len(options)):
-            break
-        else:
-            print('Invalid choice')
+    ])
 
     if choice == 0:
         while True:
@@ -386,24 +376,10 @@ def grid_fade(skin: Path):
 
 
 def friends_list_shorcut(skin: Path):
-    options = [
+    choice = generic_get_choice([
         'Enable shortcut',
         'Disable shortcut'
-    ]
-
-    # display options
-    cls()
-    print_header()
-    for x in range(len(options)):
-        print("{:4} --> {}".format(x, options[x]))
-
-    # get user choice
-    while True:
-        choice = get_int(input("Choose option: "))
-        if choice in range(len(options)):
-            break
-        else:
-            print('Invalid choice')
+    ])
 
     with (skin / 'Resource' / 'layout' / 'steamrootdialog.layout').open() as file:
         layout = file.readlines()
@@ -428,24 +404,10 @@ def friends_list_shorcut(skin: Path):
 
 
 def game_filters(skin: Path):
-    options = [
+    choice = generic_get_choice([
         'Enable filters',
         'Disable filters'
-    ]
-
-    # display options
-    cls()
-    print_header()
-    for x in range(len(options)):
-        print("{:4} --> {}".format(x, options[x]))
-
-    # get user choice
-    while True:
-        choice = get_int(input("Choose option: "))
-        if choice in range(len(options)):
-            break
-        else:
-            print('Invalid choice')
+    ])
 
     with (skin / 'Resource' / 'layout' / 'uinavigatorpanel.layout').open() as file:
         layout = file.readlines()
@@ -491,24 +453,10 @@ def game_filters(skin: Path):
 
 
 def wallet_balance(skin: Path):
-    options = [
+    choice = generic_get_choice([
         'Show wallet balance',
         'Hide wallet balance'
-    ]
-
-    # display options
-    cls()
-    print_header()
-    for x in range(len(options)):
-        print("{:4} --> {}".format(x, options[x]))
-
-    # get user choice
-    while True:
-        choice = get_int(input("Choose option: "))
-        if choice in range(len(options)):
-            break
-        else:
-            print('Invalid choice')
+    ])
 
     if choice == 0:
         height = '30'
@@ -534,29 +482,15 @@ def wallet_balance(skin: Path):
 
 
 def inbox_icon(skin: Path):
-    options = [
+    choice = generic_get_choice([
         'Show inbox icon',
         'Hide inbox icon'
-    ]
+    ])
 
     with (skin / 'Resource' / 'layout' / 'steamrootdialog.layout').open() as file:
         layout = file.readlines()
 
     idx = [layout.index(s) for s in layout if 'inbox_button {' in s][0] + 2
-
-    # display options
-    cls()
-    print_header()
-    for x in range(len(options)):
-        print("{:4} --> {}".format(x, options[x]))
-
-    # get user choice
-    while True:
-        choice = get_int(input("Choose option: "))
-        if choice in range(len(options)):
-            break
-        else:
-            print('Invalid choice')
 
     if choice == 0:
         if "render_bg" not in layout[idx]:
@@ -596,24 +530,10 @@ def inbox_icon(skin: Path):
 
 
 def square_avatars(skin: Path):
-    options = [
+    choice = generic_get_choice([
         'Enable square avatars',
         'Disable square avatars'
-    ]
-
-    # display options
-    cls()
-    print_header()
-    for x in range(len(options)):
-        print("{:4} --> {}".format(x, options[x]))
-
-    # get user choice
-    while True:
-        choice = get_int(input("Choose option: "))
-        if choice in range(len(options)):
-            break
-        else:
-            print('Invalid choice')
+    ])
 
     avatars = skin / "+Extras" / "Square Avatars"
     graphics = skin / "Graphics"
@@ -653,7 +573,7 @@ def square_avatars(skin: Path):
                         str(graphics / "avatarBorderNotificationDesktop.tga"))
             shutil.move(str(graphics / "avatarBorderNotificationOverlay.tga.orig"),
                         str(graphics / "avatarBorderNotificationOverlay.tga"))
-            shutil.move(str(graphics / "avatarBorderInGame.tga.orig"),str(graphics / "avatarBorderInGame.tga"))
+            shutil.move(str(graphics / "avatarBorderInGame.tga.orig"), str(graphics / "avatarBorderInGame.tga"))
             shutil.move(str(graphics / "avatarBorderOffline.tga.orig"), str(graphics / "avatarBorderOffline.tga"))
             shutil.move(str(graphics / "avatarBorderOnline.tga.orig"), str(graphics / "avatarBorderOnline.tga"))
             shutil.move(str(graphics / "avatarBorderOverlay.tga.orig"), str(graphics / "avatarBorderOverlay.tga"))
@@ -664,24 +584,10 @@ def square_avatars(skin: Path):
 
 
 def friends_hover(skin: Path):
-    options = [
+    choice = generic_get_choice([
         "Enable hover effect",
         "Disable hover effect"
-    ]
-
-    # display options
-    cls()
-    print_header()
-    for x in range(len(options)):
-        print("{:4} --> {}".format(x, options[x]))
-
-    # get user choice
-    while True:
-        choice = get_int(input("Choose option: "))
-        if choice in range(len(options)):
-            break
-        else:
-            print('Invalid choice')
+    ])
 
     with (skin / "Resource" / "layout" / "friendpanel.layout").open() as file:
         layout = file.readlines()
@@ -706,24 +612,10 @@ def friends_hover(skin: Path):
 
 
 def friends_status_lines(skin: Path):
-    options = [
+    choice = generic_get_choice([
         "Status on three lines",
         "Status on two lines"
-    ]
-
-    # display options
-    cls()
-    print_header()
-    for x in range(len(options)):
-        print("{:4} --> {}".format(x, options[x]))
-
-    # get user choice
-    while True:
-        choice = get_int(input("Choose option: "))
-        if choice in range(len(options)):
-            break
-        else:
-            print('Invalid choice')
+    ])
 
     with (skin / "Resource" / "layout" / "friendpanel.layout").open() as file:
         layout = file.readlines()
@@ -773,6 +665,47 @@ def friends_status_lines(skin: Path):
     input('Friends list status shown on {} lines.  Press enter to continue...'.format(status))
 
 
+def downloads_icon(skin: Path):
+    choice = generic_get_choice([
+        "Enable downloads icon",
+        "Disable downloads icon"
+    ])
+
+    with (skin / "Resource" / "layout" / "uistatuspanel.layout").open() as file:
+        layout = file.readlines()
+
+    idx = [layout.index(s) for s in layout if 'CUIStatusPanel' in s][0] + 1
+
+    if choice == 0:
+        if "render" not in layout[idx]:
+            layout.insert(idx, "\t\t\t}\n")
+            layout.insert(idx, "\t\t\t\t0=\"image( x0, y0, x1, y1, graphics/material/download )\"\n")
+            layout.insert(idx, "\t\t\trender {\n")
+
+            idx = [layout.index(s) for s in layout if 'bgcolor' in s][0] + 1
+            while '}' not in layout[idx]:
+                layout.pop(idx)
+            layout.pop(idx)
+        status = "enabled"
+    else:
+        if "render" in layout[idx]:
+            while '}' not in layout[idx]:
+                layout.pop(idx)
+            layout.pop(idx)
+
+            idx = [layout.index(s) for s in layout if 'bgcolor' in s][0] + 1
+
+            layout.insert(idx, "\t\t\t}\n")
+            layout.insert(idx, "\t\t\t\t0=\"image( x0, y0 - 78, x1, y1, graphics/material/download )\"\n")
+            layout.insert(idx, "\t\t\trender {\n")
+        status = "disabled"
+
+    with (skin / "Resource" / "layout" / "uistatuspanel.layout").open("w") as file:
+        file.writelines(layout)
+
+    input('Downloads icon {}.  Press enter to continue...'.format(status))
+
+
 def configure_skin(skin):
     options = [
         ('Change theme', change_theme),
@@ -789,7 +722,7 @@ def configure_skin(skin):
         ('Friends list square avatars', square_avatars),
         ('Friends list hover effect', friends_hover),
         ('Friends list status on three lines', friends_status_lines),
-        'Always visible downloads icon',
+        ('Always visible downloads icon', downloads_icon),
         ('Exit', 0)
     ]
 
@@ -807,6 +740,7 @@ def configure_skin(skin):
                 print('Invalid choice')
 
         if options[choice][0] == 'Exit':
+            print("\nRestart Steam to see changes\n")
             break
 
         options[choice][1](skin)
