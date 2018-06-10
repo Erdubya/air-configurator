@@ -5,6 +5,11 @@ from pathlib import Path
 
 
 def get_default_dir() -> Path:
+    """
+    Gets the default skins directory for the operating system.
+
+    :return: A Path object with the full path to the skins directory
+    """
     if sys.platform == 'linux':
         skins_dir = Path.expanduser(Path('~/.local/share/Steam/skins/'))
     elif sys.platform == 'posix':
@@ -18,23 +23,46 @@ def get_default_dir() -> Path:
     return skins_dir
 
 
-def get_int(num: str):
+def get_int(num: str) -> int:
+    """
+    Evaluates if the given string is a valid integer
+
+    :param num: The string to evaluate
+    :return: The integer found, otherwise -1
+    """
     if num.isdigit():
         return int(num)
     return -1
 
 
 def print_header():
+    """
+    Prints the program header
+
+    :return: returns nothing
+    """
     print("air-configurator")
     print(sys.platform)
     print('Skin path: ' + str(skin_dir))
 
 
 def cls():
+    """
+    Clears the terminal screen
+
+    :return: returns nothing
+    """
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def copy_dir(root_src_dir, root_dst_dir):
+    """
+    Copies one directory to another, overwriting as needed
+
+    :param root_src_dir: The directory to copy from
+    :param root_dst_dir: The directory to copy to
+    :return: returns nothing
+    """
     for src_dir, dirs, files in os.walk(root_src_dir):
         dst_dir = src_dir.replace(root_src_dir, root_dst_dir, 1)
         if not os.path.exists(dst_dir):
@@ -48,6 +76,12 @@ def copy_dir(root_src_dir, root_dst_dir):
 
 
 def generic_get_choice(options: list) -> int:
+    """
+    Prompts the user to make a choice from a list of options
+
+    :param options: The list options to choose from
+    :return: The choice made
+    """
     # display options
     cls()
     print_header()
@@ -66,6 +100,12 @@ def generic_get_choice(options: list) -> int:
 
 
 def choose_skin(skin_list: list) -> int:
+    """
+    Prompts the user to select a skin to edit
+
+    :param skin_list: A list of available skins
+    :return: An integer representing the skin chosen
+    """
     cls()
     print_header()
     for x in range(len(skin_list)):
@@ -80,10 +120,22 @@ def choose_skin(skin_list: list) -> int:
 
 
 def is_air_skin(skin: Path) -> bool:
+    """
+    Checks if the given skin is in fact Air
+
+    :param skin: A Path to the skin root
+    :return: If the skin is Air
+    """
     return "Air-for-Steam" in (skin / 'Changelog.url').read_text()
 
 
 def change_theme(skin: Path):
+    """
+    Changes the currently activated theme.
+
+    :param skin: Path to the skin root
+    :return: returns nothing
+    """
     # get theme list
     themes = [x.name for x in (skin / '+Extras' / 'Themes').iterdir() if x.is_dir()]
 
@@ -128,6 +180,12 @@ def change_theme(skin: Path):
 
 
 def change_color(skin: Path):
+    """
+    Changes the currently activated color scheme
+
+    :param skin: Path to the skin root
+    :return: returns nothing
+    """
     # get list of available colors
     colors = [x.stem for x in (skin / 'Resource' / 'colors').iterdir() if x.is_file()]
     colors += [x.stem for x in (skin / 'Resource' / 'colors' / 'user').iterdir() if x.is_file()]
@@ -170,6 +228,12 @@ def change_color(skin: Path):
 
 
 def chat_font_size(skin: Path):
+    """
+    Changes the font size of chat
+
+    :param skin: Path to the skin root
+    :return: returns nothing
+    """
     choice = generic_get_choice([
         'Enter new font size',
         'Reset to default',
@@ -223,6 +287,12 @@ def chat_font_size(skin: Path):
 
 
 def notify_pos(skin: Path):
+    """
+    Changes the position of desktop notifications
+
+    :param skin: Path to the skin root
+    :return: returns nothing
+    """
     options = [
         ('Bottom right', 'BottomRight'),
         ('Bottom left', 'BottomLeft'),
@@ -263,6 +333,12 @@ def notify_pos(skin: Path):
 
 
 def notify_stack(skin: Path):
+    """
+    Changes the number of notifications shown in a stack
+
+    :param skin: Path to the skin root
+    :return: returns nothing
+    """
     choice = generic_get_choice([
         'Change stack size',
         'Cancel'
@@ -294,6 +370,12 @@ def notify_stack(skin: Path):
 
 
 def detail_reorg(skin: Path):
+    """
+    Reorganizes the sections of the detail view
+
+    :param skin: Path to the skin root
+    :return: returns nothing
+    """
     with (skin / 'Resource' / 'layout' / 'steamrootdialog_gamespage_details.layout').open() as file:
         layout = file.readlines()
 
@@ -349,11 +431,18 @@ def detail_reorg(skin: Path):
 
 
 def grid_fade(skin: Path):
+    """
+    Change the fade of the games in the grid view
+
+    :param skin: Path to the skin root
+    :return: returns nothing
+    """
     with (skin / 'Resource' / 'styles' / 'steam.styles').open() as file:
         styles = file.readlines()
 
     idx = [styles.index(s) for s in styles if 'GameItem_Uninstalled GamesGridImage' in s][0] + 1
 
+    # get the current alpha value
     cur_alpha = styles[idx].strip(' \t\nalpha')
 
     cls()
@@ -376,6 +465,12 @@ def grid_fade(skin: Path):
 
 
 def friends_list_shorcut(skin: Path):
+    """
+    Enables or disables the friends list shortcut
+
+    :param skin: Path to the skin root
+    :return: returns nothing
+    """
     choice = generic_get_choice([
         'Enable shortcut',
         'Disable shortcut'
@@ -404,6 +499,12 @@ def friends_list_shorcut(skin: Path):
 
 
 def game_filters(skin: Path):
+    """
+    Enables or disables the extra game filters
+
+    :param skin: Path to the skin root
+    :return: nothing returned
+    """
     choice = generic_get_choice([
         'Enable filters',
         'Disable filters'
@@ -453,6 +554,12 @@ def game_filters(skin: Path):
 
 
 def wallet_balance(skin: Path):
+    """
+    Display the wallet balance when empty.
+
+    :param skin: Path to the skin root
+    :return: returns nothing
+    """
     choice = generic_get_choice([
         'Show wallet balance',
         'Hide wallet balance'
@@ -482,6 +589,12 @@ def wallet_balance(skin: Path):
 
 
 def inbox_icon(skin: Path):
+    """
+    Enable or disable the inbox icon when no notifications
+
+    :param skin: Path to the skin root
+    :return: returns nothing
+    """
     choice = generic_get_choice([
         'Show inbox icon',
         'Hide inbox icon'
@@ -530,6 +643,12 @@ def inbox_icon(skin: Path):
 
 
 def square_avatars(skin: Path):
+    """
+    Enable or disable square friends avatars
+
+    :param skin: Path to the skin root
+    :return: returns nothing
+    """
     choice = generic_get_choice([
         'Enable square avatars',
         'Disable square avatars'
@@ -584,6 +703,12 @@ def square_avatars(skin: Path):
 
 
 def friends_hover(skin: Path):
+    """
+    Enables or disables friends list hover effect
+
+    :param skin: Path to skin root
+    :return: returns nothing
+    """
     choice = generic_get_choice([
         "Enable hover effect",
         "Disable hover effect"
@@ -612,6 +737,12 @@ def friends_hover(skin: Path):
 
 
 def friends_status_lines(skin: Path):
+    """
+    Adjust number of lines in the friends list status
+
+    :param skin: Path to the skin root
+    :return: returns nothing
+    """
     choice = generic_get_choice([
         "Status on three lines",
         "Status on two lines"
@@ -666,6 +797,12 @@ def friends_status_lines(skin: Path):
 
 
 def downloads_icon(skin: Path):
+    """
+    Enable or disable the always on downloads icon
+
+    :param skin: Path to the skin root
+    :return: returns nothing
+    """
     choice = generic_get_choice([
         "Enable downloads icon",
         "Disable downloads icon"
@@ -707,6 +844,12 @@ def downloads_icon(skin: Path):
 
 
 def configure_skin(skin):
+    """
+    Handle the options for configuring the skin
+
+    :param skin: Path to the skin root
+    :return: returns nothing
+    """
     options = [
         ('Change theme', change_theme),
         ('Change color', change_color),
@@ -745,13 +888,11 @@ def configure_skin(skin):
 
         options[choice][1](skin)
 
+# Run the program
 
 skin_dir = get_default_dir()
-
 print_header()
-
 skins = [x for x in skin_dir.iterdir() if x.is_dir()]
-
 skin_dir = skins[choose_skin(skins)]
 
 if not is_air_skin(skin_dir):
